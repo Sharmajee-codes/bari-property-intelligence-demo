@@ -8,6 +8,14 @@ For a quick technical review, see the [executed validation evidence](docs/VALIDA
 
 A runnable data-engineering demonstration for evaluating Italian property intelligence workflows: acquisition, normalization, historical asking prices, advertisement availability, conservative entity resolution, and geographic comparable searches. The code, database, configuration, and reports are owned by whoever operates this repository. There are no paid services, live listing integrations, real addresses, or source-site content.
 
+## Working demo screenshots
+
+Captured from the running application after the **14-day synthetic simulation**. These show synthetic advertisements, asking prices and simulated costs; they do not represent live portal access or an operated production pilot.
+
+![Running synthetic inventory and quality dashboard](docs/screenshots/01-inventory-overview.jpg)
+
+[View all five screenshots: inventory, geographic comparables, asking-price history, ingestion runs and OpenAPI documentation](docs/SCREENSHOTS.md).
+
 ## Run the complete demonstration
 
 Requirements: Docker with Compose, approximately 2 GB free disk space, and available local ports `8089` and `55439`. The PostGIS image uses amd64; Docker Desktop on Apple Silicon runs it with emulation.

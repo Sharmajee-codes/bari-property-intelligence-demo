@@ -23,3 +23,5 @@
 - Sample JSON/Markdown reports are included under reports/sample-*.
 - Optional browser view loaded inventory/comparables/history; a subsequent in-app browser refresh was blocked after rebuilding, while HTTP health remained verified.
 - GitHub Actions passed the complete 31-test suite, lint/format checks, the 14-day simulation and report generation; see docs/VALIDATION.md. Production gaps remain explicitly documented.
+
+- Captured five genuine screenshots from the running synthetic demo and added the README preview/gallery with explicit simulation labels.
