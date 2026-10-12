@@ -156,7 +156,7 @@ Inside the already built container, use its installed pytest and the internal da
 docker compose exec -e TEST_DATABASE_URL=postgresql+psycopg://demo:demo_local_only@db:5432/bari_test api python -m pytest -q
 ```
 
-Without `TEST_DATABASE_URL`, database tests are skipped, which is **not full acceptance**. [Validation evidence](docs/VALIDATION.md) records actual executed checks; CI is configured but should be independently confirmed after publication.
+Without `TEST_DATABASE_URL`, database tests are skipped, which is **not full acceptance**. [Validation evidence](docs/VALIDATION.md) records actual executed checks; the [published GitHub Actions run](https://github.com/Sharmajee-codes/bari-property-intelligence-demo/actions/runs/38212601376) passed all 31 tests, lint/format checks and the 14-day simulation/report commands.
 
 ## Ownership, limitations and expansion
 

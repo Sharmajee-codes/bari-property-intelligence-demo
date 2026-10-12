@@ -19,7 +19,7 @@ Environment: Python 3.12.13, PostgreSQL 16 / PostGIS 3.5 container, Docker Deskt
 - Browser displayed inventory, localized comparable results and an advertisement's retained availability/asking-price history. A later in-app refresh during container rebuilding entered a browser navigation guard; subsequent endpoint checks confirmed API health. The initial browser verification is not represented as a fresh post-restart screenshot.
 - Integration tests verify byte-identical Markdown/JSON reports after replay and repeated reporting, including the 14-day simulation.
 
-The configured GitHub Actions workflow has **not** been run on GitHub in this task. No production performance benchmarks or actual operating expenses were measured. Source acquisition retry is simulated in a test; there are no real provider calls.
+The initial local checks above predate publication. The GitHub Actions verification below was subsequently executed successfully. No production performance benchmarks or actual operating expenses were measured. Source acquisition retry is simulated in a test; there are no real provider calls.
 
 ## Measured synthetic results
 
@@ -53,3 +53,19 @@ fourteen-day: 8e80230a9679041fc9bd7d021cc90667f45ac813b44904f2f9b0144dbb813dd4
 ```
 
 These are simulated data-quality/cost reports. They are not evidence of 14 days of continuous production operation, verified market values, completed transactions or paid source coverage.
+
+
+## GitHub Actions verification after publication
+
+Executed **12 October 2026**, on Ubuntu/Python 3.12 with a PostgreSQL/PostGIS service container.
+
+[Public successful workflow run](https://github.com/Sharmajee-codes/bari-property-intelligence-demo/actions/runs/38212601376) verifies commit `918803c2dc00560f6cc22b7bf4d5ab95f24fe6c5`:
+
+- PostGIS service initialization, dependency installation and editable package installation succeeded.
+- Ruff lint and formatting checks passed.
+- The **complete 31-test suite passed in one run: 31 passed, 1 warning in 187.69s**.
+- `python -m app.cli run-demo --days 14` succeeded.
+- `python -m app.cli quality-report` succeeded.
+- The workflow uploaded `synthetic-validation-reports` as a downloadable artifact; artifacts have GitHub retention limits, while the committed sample reports remain available in the repository.
+
+The first published workflow run failed before tests because of health-check argument quoting. That configuration was corrected, and the linked subsequent run passed all steps. Later documentation-only changes do not alter the verified application code. No production-operation or actual-cost claims are inferred from CI execution.

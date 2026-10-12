@@ -22,4 +22,4 @@
 - Actual synthetic metrics and captured API responses are in docs/VALIDATION.md and docs/API_EXAMPLES.md.
 - Sample JSON/Markdown reports are included under reports/sample-*.
 - Optional browser view loaded inventory/comparables/history; a subsequent in-app browser refresh was blocked after rebuilding, while HTTP health remained verified.
-- CI is configured but has not been executed on GitHub. Production gaps are explicitly documented.
+- GitHub Actions passed the complete 31-test suite, lint/format checks, the 14-day simulation and report generation; see docs/VALIDATION.md. Production gaps remain explicitly documented.
