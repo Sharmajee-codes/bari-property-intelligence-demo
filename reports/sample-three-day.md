@@ -1,0 +1,163 @@
+# Synthetic property quality report
+
+3-day simulation; not a continuously operated pilot
+
+As of: 2026-01-03T09:00:00+00:00
+
+| Metric | Value |
+|---|---:|
+| total_raw_listings | 4440 |
+| distinct_source_advertisements | 1600 |
+| unique_deduplicated_properties | 1162 |
+| active_advertisements | 1510 |
+| removed_advertisements | 60 |
+| temporarily_unavailable_advertisements | 30 |
+| price_change_events | 122 |
+
+## Deduplication (private synthetic ground-truth evaluation)
+
+```json
+{
+  "synthetic": true,
+  "evaluation": "pairwise final clusters; all truth pairs, including blocked candidates",
+  "labeled_listings": 1600,
+  "unlabeled_listings": 0,
+  "true_positives": 438,
+  "false_positives": 0,
+  "false_negatives": 162,
+  "precision": 1.0,
+  "recall": 0.73,
+  "f1": 0.8439306358381503
+}
+```
+
+## Missing Field Percentages
+
+```json
+{
+  "address": 3.375,
+  "area_sqm": 1.875,
+  "asking_price_eur": 2.0625,
+  "balcony": 0.0,
+  "bathrooms": 3.1875,
+  "building_year": 0.0,
+  "condition": 0.0,
+  "energy_class": 6.4375,
+  "floor": 0.0,
+  "garden": 0.0,
+  "lift": 0.0,
+  "parking": 0.0,
+  "rooms": 0.0,
+  "storage": 0.0,
+  "terrace": 0.0
+}
+```
+
+## Coordinate Accuracy Distribution
+
+```json
+{
+  "approximate_21_200m": 166,
+  "coarse_over_200m": 144,
+  "precise_0_20m": 1290
+}
+```
+
+## Validation
+
+```json
+{
+  "duplicate_source_identifiers": 0,
+  "invalid_area_records": 0,
+  "invalid_coordinate_records": 0,
+  "quarantined_records": 0,
+  "schema_changes": 0
+}
+```
+
+## Ingestion
+
+```json
+{
+  "failed_runs": 0,
+  "partial_runs": 0,
+  "processing_runs": 3,
+  "success_rate": 1.0,
+  "successful_runs": 3
+}
+```
+
+## Data Freshness
+
+```json
+{
+  "basis": "latest simulated observation time, not wall-clock operation",
+  "max_active_age_days": 0.0,
+  "stale_active_listings": 0,
+  "stale_threshold_days": 3
+}
+```
+
+## Source Coverage
+
+```json
+{
+  "Bari": 200,
+  "Bitonto": 200,
+  "Conversano": 200,
+  "Giovinazzo": 200,
+  "Modugno": 200,
+  "Mola di Bari": 200,
+  "Noicattaro": 200,
+  "Triggiano": 200
+}
+```
+
+## Costs
+
+```json
+{
+  "cost_per_1000_usable": 3.298446,
+  "currency": "EUR",
+  "denominator": "active deduplicated properties with at least one usable advertisement",
+  "infrastructure_charges": 2.25,
+  "processing_charges": 0.045,
+  "provider_charges": 0.888,
+  "rates": {
+    "infrastructure_eur_per_simulated_day": 0.75,
+    "processing_eur_per_run": 0.015,
+    "provider_eur_per_raw_record": 0.0002
+  },
+  "simulated": true,
+  "total_operational_cost": 3.183,
+  "usable_criteria": {
+    "coordinates_required": true,
+    "max_accuracy_m": 200.0,
+    "positive_area_required": true,
+    "price_required": true
+  },
+  "usable_deduplicated_count": 965,
+  "usable_listings": 1322
+}
+```
+
+## Alerts
+
+```json
+[
+  {
+    "check": "deduplication_recall",
+    "threshold": 0.75,
+    "value": 0.73
+  }
+]
+```
+
+## Limitations
+
+- All records and microzone boundaries are synthetic demonstration data.
+- Statistics describe asking prices, not completed sales or verified market values.
+- Coordinate accuracy is a declared synthetic error bound, not a measured geocode guarantee.
+- Conservative deduplication may leave probable duplicates counted separately.
+- Availability changes are not transaction evidence; transaction statuses are unknown.
+- Cost rates are illustrative assumptions, not invoices or quoted provider prices.

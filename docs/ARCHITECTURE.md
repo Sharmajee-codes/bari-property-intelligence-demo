@@ -1,0 +1,15 @@
+# Architecture and national expansion
+
+This independently developed system uses exclusively synthetic records. The architecture is designed for a reviewable local demonstration, not evidence of previous client delivery.
+
+`app/adapters` defines a replaceable collection interface returning a timestamped, explicitly scoped `Snapshot`. Acquisition retry handles only declared transient source errors. `app/schemas.py` validates the source contract. `app/services/ingestion.py` preserves raw inputs, quarantines rejected rows, normalizes identifiers and writes observations and current state in one transaction. A PostgreSQL advisory transaction lock serializes ingestion and entity reassignment; readers continue to use MVCC.
+
+`app/services/deduplication.py` uses indexed PostGIS blocking, explainable Python scoring and complete-link clustering. The resolver never reads private truth; only `metrics()` reads `demo_ground_truth`, and public responses contain aggregate counts. Candidates and decisions are persisted in bounded batches. `app/services/geospatial.py` implements indexed geographic filtering, synthetic polygon restrictions and uncertainty-aware radius expansion. `app/services/quality.py` derives deterministic reports and simulated costs. FastAPI owns HTTP validation and public response contracts; it has no ingestion mutation endpoints.
+
+`db` persists PostGIS data in a named volume. The one-shot `init` service waits for a healthy database, migrates, seeds and evaluates the default demo. `api` starts only after successful initialization. An optional worker runs local reporting on a configured interval and stops on SIGTERM/SIGINT. The default Compose stack does not need a worker or an external scheduler.
+
+A licensed source adapter must establish inventory completeness for its exact source/scope, translate availability honestly and retain original identifiers. Normalization and the API should not change when introducing a new adapter. Synthetic-only validation is deliberately retained in this demo; a live production branch would need separate compliance, contracts, provenance and access controls.
+
+For national coverage, first measure listing count, change frequency, retention and candidate density. Introduce source-sharded scheduling, observation partitioning, stable entity identities, provenance-based canonical attributes, a human review workflow, and monitored ingest lag. Use region/type/area/geography candidate blocks and reviewed evidence before increasing automatic merges. Add backups, restore drills, security boundaries and provider entitlement checks. Scale a single PostgreSQL deployment before introducing extra infrastructure; add a job queue only when measured throughput and failure isolation require one.
+
+Technical references: [PostGIS ST_DWithin](https://postgis.net/docs/ST_DWithin.html) documents geography distances in metres and index-assisted filtering; [Docker startup order](https://docs.docker.com/compose/how-tos/startup-order/) documents health and successful-init dependencies used in Compose.

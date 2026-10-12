@@ -1,0 +1,116 @@
+{
+  "active_advertisements": 1540,
+  "alerts": [
+    {
+      "check": "deduplication_recall",
+      "threshold": 0.75,
+      "value": 0.73
+    }
+  ],
+  "as_of": "2026-01-14T09:00:00+00:00",
+  "coordinate_accuracy_distribution": {
+    "approximate_21_200m": 166,
+    "coarse_over_200m": 144,
+    "precise_0_20m": 1290
+  },
+  "costs": {
+    "cost_per_1000_usable": 15.433574,
+    "currency": "EUR",
+    "denominator": "active deduplicated properties with at least one usable advertisement",
+    "infrastructure_charges": 10.5,
+    "processing_charges": 0.21,
+    "provider_charges": 4.276,
+    "rates": {
+      "infrastructure_eur_per_simulated_day": 0.75,
+      "processing_eur_per_run": 0.015,
+      "provider_eur_per_raw_record": 0.0002
+    },
+    "simulated": true,
+    "total_operational_cost": 14.986,
+    "usable_criteria": {
+      "coordinates_required": true,
+      "max_accuracy_m": 200.0,
+      "positive_area_required": true,
+      "price_required": true
+    },
+    "usable_deduplicated_count": 971,
+    "usable_listings": 1350
+  },
+  "data_freshness": {
+    "basis": "latest simulated observation time, not wall-clock operation",
+    "max_active_age_days": 0.0,
+    "stale_active_listings": 0,
+    "stale_threshold_days": 3
+  },
+  "data_limitations": [
+    "All records and microzone boundaries are synthetic demonstration data.",
+    "Statistics describe asking prices, not completed sales or verified market values.",
+    "Coordinate accuracy is a declared synthetic error bound, not a measured geocode guarantee.",
+    "Conservative deduplication may leave probable duplicates counted separately.",
+    "Availability changes are not transaction evidence; transaction statuses are unknown.",
+    "Cost rates are illustrative assumptions, not invoices or quoted provider prices."
+  ],
+  "deduplication": {
+    "evaluation": "pairwise final clusters; all truth pairs, including blocked candidates",
+    "f1": 0.8439306358381503,
+    "false_negatives": 162,
+    "false_positives": 0,
+    "labeled_listings": 1600,
+    "precision": 1.0,
+    "recall": 0.73,
+    "synthetic": true,
+    "true_positives": 438,
+    "unlabeled_listings": 0
+  },
+  "distinct_source_advertisements": 1600,
+  "ingestion": {
+    "failed_runs": 0,
+    "partial_runs": 0,
+    "processing_runs": 14,
+    "success_rate": 1.0,
+    "successful_runs": 14
+  },
+  "missing_field_percentages": {
+    "address": 3.375,
+    "area_sqm": 1.875,
+    "asking_price_eur": 2.0625,
+    "balcony": 0.0,
+    "bathrooms": 3.1875,
+    "building_year": 0.0,
+    "condition": 0.0,
+    "energy_class": 6.4375,
+    "floor": 0.0,
+    "garden": 0.0,
+    "lift": 0.0,
+    "parking": 0.0,
+    "rooms": 0.0,
+    "storage": 0.0,
+    "terrace": 0.0
+  },
+  "price_change_events": 661,
+  "raw_count_basis": "input rows across runs, including quarantine; replays excluded",
+  "removed_advertisements": 60,
+  "simulation_days": 14,
+  "source_coverage": {
+    "Bari": 200,
+    "Bitonto": 200,
+    "Conversano": 200,
+    "Giovinazzo": 200,
+    "Modugno": 200,
+    "Mola di Bari": 200,
+    "Noicattaro": 200,
+    "Triggiano": 200
+  },
+  "synthetic": true,
+  "temporarily_unavailable_advertisements": 0,
+  "total_raw_listings": 21380,
+  "unique_deduplicated_properties": 1162,
+  "validation": {
+    "duplicate_source_identifiers": 0,
+    "invalid_area_records": 0,
+    "invalid_coordinate_records": 0,
+    "quarantined_records": 0,
+    "schema_changes": 0
+  },
+  "validation_label": "14-day simulation; not a continuously operated pilot"
+}

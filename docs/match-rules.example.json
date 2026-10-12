@@ -1,0 +1,11 @@
+{
+  "confirmed": 0.90,
+  "probable": 0.78,
+  "uncertain": 0.60,
+  "candidate_radius_m": 500,
+  "max_confirmed_accuracy_m": 80,
+  "weights": {
+    "geo": 0.20, "address": 0.28, "area": 0.20, "type": 0.10,
+    "floor": 0.10, "rooms": 0.07, "lift": 0.025, "condition": 0.025
+  }
+}

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bari Property Intelligence — Synthetic Demo</title>
+<link rel="stylesheet" href="/static/style.css">
+<script src="/static/demo.js" defer></script>
+</head>
+<body>
+<main>
+<header><p class="eyebrow">Independent technical demonstration · Synthetic data</p>
+<h1>Bari Property Intelligence</h1>
+<p>Property inventory, asking-price history, conservative matching and geographic comparisons.</p>
+<p class="notice">This repository is an independently developed technical demonstration using synthetic data. It is not affiliated with Immobiliare.it or Gruppo Loseto S.r.l. and does not represent a completed production deployment.</p>
+<a href="/docs">Explore the documented API →</a></header>
+<p id="status" role="status" aria-live="polite">Loading synthetic inventory…</p>
+<section aria-labelledby="inventory-heading"><h2 id="inventory-heading">Inventory and quality</h2>
+<div id="stats" class="stats"></div><p id="quality-note"></p>
+<details><summary>Data-quality evidence and simulated costs</summary><pre id="quality"></pre></details>
+</section>
+<section aria-labelledby="comparison-heading"><h2 id="comparison-heading">Geographic asking-price comparables</h2>
+<p>Start at 50m. The search expands within the origin's synthetic microzone. Coarse coordinates are excluded from localized comparisons.</p>
+<form id="search">
+<label>Latitude<input name="latitude" type="number" step="any" min="-90" max="90" value="41.1171" required></label>
+<label>Longitude<input name="longitude" type="number" step="any" min="-180" max="180" value="16.8719" required></label>
+<label>Maximum radius (m)<input name="max_radius_m" type="number" min="50" max="10000" value="1000" required></label>
+<label>Property type<select name="property_type"><option value="">All types</option><option value="apartment">Apartment</option><option value="house">House</option><option value="villa">Villa</option></select></label>
+<label class="check"><input name="allow_cross_microzone" type="checkbox">Allow crossing synthetic microzones</label>
+<button type="submit">Find comparables</button>
+</form>
+<p id="search-status" role="status" aria-live="polite"></p>
+<div class="table-wrap"><table><caption>Qualifying inferred properties — asking prices only</caption><thead><tr><th scope="col">Municipality / synthetic address</th><th scope="col">Asking price</th><th scope="col">Area</th><th scope="col">Distance / accuracy</th><th scope="col">Merge confidence</th></tr></thead><tbody id="comparables"></tbody></table></div>
+</section>
+<section aria-labelledby="history-heading"><h2 id="history-heading">Inventory and asking-price history</h2>
+<p>Select an advertisement to inspect its retained history. Removed advertisements have unknown transaction status.</p>
+<div id="inventory" class="inventory"></div><pre id="history" aria-live="polite">Select an advertisement above.</pre></section>
+<section aria-labelledby="runs-heading"><h2 id="runs-heading">Ingestion-run history</h2><div class="table-wrap"><table><caption>Daily synthetic observations, acquired in accelerated execution</caption><thead><tr><th scope="col">Simulated observation</th><th scope="col">Status</th><th scope="col">Raw / accepted</th><th scope="col">Price changes</th><th scope="col">Inferred removals</th></tr></thead><tbody id="runs"></tbody></table></div></section>
+<footer>All prices are asking prices, not completed-sale prices or verified market values. Microzones and cost assumptions are synthetic. A 14-day simulation is not a continuously operated pilot.</footer>
+</main>
+</body></html>

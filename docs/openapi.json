@@ -1,0 +1,1850 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Bari Property Intelligence \u2014 Synthetic Demonstration",
+    "description": "This repository is an independently developed technical demonstration using synthetic data. It is not affiliated with Immobiliare.it or Gruppo Loseto S.r.l. and does not represent a completed production deployment.\n\nAll prices are asking prices in EUR. Removed listings do not establish a sale. Ground truth is evaluation-only.",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/properties": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "summary": "Paginated deduplicated inventory",
+        "operationId": "properties_api_v1_properties_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 25,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "municipality",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Municipality"
+            }
+          },
+          {
+            "name": "property_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(apartment|house|villa)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Property Type"
+            }
+          },
+          {
+            "name": "availability",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(active|temporarily_unavailable|removed)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Availability"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_PropertySummary_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/properties/{property_id}": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "summary": "Property Detail",
+        "operationId": "property_detail_api_v1_properties__property_id__get",
+        "parameters": [
+          {
+            "name": "property_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Property Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropertyDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Property not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/listings/{listing_id}/history": {
+      "get": {
+        "tags": [
+          "History"
+        ],
+        "summary": "History",
+        "description": "Immutable asking-price events and availability observations. Removal never means sold.",
+        "operationId": "history_api_v1_listings__listing_id__history_get",
+        "parameters": [
+          {
+            "name": "listing_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Listing Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HistoryView"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Listing not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comparables": {
+      "get": {
+        "tags": [
+          "Geographic search"
+        ],
+        "summary": "Search Comparables",
+        "description": "ST_DWithin in metres; expansion stays within synthetic origin microzone unless explicitly allowed. Accuracy must be at most half the search radius and 200m.",
+        "operationId": "search_comparables_api_v1_comparables_get",
+        "parameters": [
+          {
+            "name": "latitude",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "maximum": 90,
+              "minimum": -90,
+              "title": "Latitude"
+            }
+          },
+          {
+            "name": "longitude",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "maximum": 180,
+              "minimum": -180,
+              "title": "Longitude"
+            }
+          },
+          {
+            "name": "initial_radius_m",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 10000,
+              "minimum": 10,
+              "default": 50,
+              "title": "Initial Radius M"
+            }
+          },
+          {
+            "name": "max_radius_m",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 10000,
+              "minimum": 10,
+              "default": 1000,
+              "title": "Max Radius M"
+            }
+          },
+          {
+            "name": "min_comparables",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 5,
+              "title": "Min Comparables"
+            }
+          },
+          {
+            "name": "property_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(apartment|house|villa)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Property Type"
+            }
+          },
+          {
+            "name": "min_area_sqm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Area Sqm"
+            }
+          },
+          {
+            "name": "max_area_sqm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Max Area Sqm"
+            }
+          },
+          {
+            "name": "min_price_eur",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Price Eur"
+            }
+          },
+          {
+            "name": "max_price_eur",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Max Price Eur"
+            }
+          },
+          {
+            "name": "condition",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(renovated|good|needs_renovation)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Condition"
+            }
+          },
+          {
+            "name": "floor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 30,
+                  "minimum": -1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Floor"
+            }
+          },
+          {
+            "name": "lift",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Lift"
+            }
+          },
+          {
+            "name": "allow_cross_microzone",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Allow Cross Microzone"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComparableView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/quality/summary": {
+      "get": {
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Quality Summary",
+        "operationId": "quality_summary_api_v1_quality_summary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QualityView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ingestion/runs": {
+      "get": {
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Runs",
+        "operationId": "runs_api_v1_ingestion_runs_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 25,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_RunView_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/deduplication/metrics": {
+      "get": {
+        "tags": [
+          "Entity resolution"
+        ],
+        "summary": "Dedup Metrics",
+        "description": "Aggregate evaluation against private synthetic truth; no truth identifiers exposed.",
+        "operationId": "dedup_metrics_api_v1_deduplication_metrics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MetricsView"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ComparableItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "property_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Property Id"
+          },
+          "source_id": {
+            "type": "string",
+            "title": "Source Id"
+          },
+          "agency_id": {
+            "type": "string",
+            "title": "Agency Id"
+          },
+          "original_source_id": {
+            "type": "string",
+            "title": "Original Source Id"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "municipality": {
+            "type": "string",
+            "title": "Municipality"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "property_type": {
+            "type": "string",
+            "title": "Property Type"
+          },
+          "asking_price_eur": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asking Price Eur",
+            "description": "Asking price, never a verified sale price"
+          },
+          "area_sqm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Area Sqm"
+          },
+          "rooms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rooms"
+          },
+          "floor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Floor"
+          },
+          "condition": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Condition"
+          },
+          "lift": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lift"
+          },
+          "latitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitude"
+          },
+          "longitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitude"
+          },
+          "coordinate_accuracy_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coordinate Accuracy M"
+          },
+          "coordinate_provenance": {
+            "type": "string",
+            "title": "Coordinate Provenance"
+          },
+          "availability": {
+            "type": "string",
+            "enum": [
+              "active",
+              "temporarily_unavailable",
+              "removed"
+            ],
+            "title": "Availability"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Published At"
+          },
+          "first_seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "First Seen At"
+          },
+          "last_seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Seen At"
+          },
+          "state_updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "State Updated At"
+          },
+          "synthetic": {
+            "type": "boolean",
+            "const": true,
+            "title": "Synthetic"
+          },
+          "missing_attributes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Missing Attributes"
+          },
+          "attributes": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Attributes"
+          },
+          "distance_m": {
+            "type": "number",
+            "title": "Distance M"
+          },
+          "microzone_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Microzone Id"
+          },
+          "deduplication_confidence": {
+            "type": "number",
+            "title": "Deduplication Confidence"
+          },
+          "coordinate_accuracy_indicator": {
+            "type": "string",
+            "title": "Coordinate Accuracy Indicator"
+          },
+          "transaction_status": {
+            "type": "string",
+            "const": "unknown",
+            "title": "Transaction Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "property_id",
+          "source_id",
+          "agency_id",
+          "original_source_id",
+          "url",
+          "municipality",
+          "address",
+          "description",
+          "property_type",
+          "asking_price_eur",
+          "area_sqm",
+          "rooms",
+          "floor",
+          "condition",
+          "lift",
+          "latitude",
+          "longitude",
+          "coordinate_accuracy_m",
+          "coordinate_provenance",
+          "availability",
+          "published_at",
+          "first_seen_at",
+          "last_seen_at",
+          "state_updated_at",
+          "synthetic",
+          "missing_attributes",
+          "attributes",
+          "distance_m",
+          "microzone_id",
+          "deduplication_confidence",
+          "coordinate_accuracy_indicator",
+          "transaction_status"
+        ],
+        "title": "ComparableItem"
+      },
+      "ComparableView": {
+        "properties": {
+          "synthetic": {
+            "type": "boolean",
+            "const": true,
+            "title": "Synthetic"
+          },
+          "search_radius_used_m": {
+            "type": "number",
+            "title": "Search Radius Used M"
+          },
+          "attempted_radii_m": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Attempted Radii M"
+          },
+          "origin_microzone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Origin Microzone"
+          },
+          "cross_microzone_allowed": {
+            "type": "boolean",
+            "title": "Cross Microzone Allowed"
+          },
+          "cross_microzone_expansion": {
+            "type": "boolean",
+            "title": "Cross Microzone Expansion"
+          },
+          "coordinate_accuracy_limit_m": {
+            "type": "number",
+            "title": "Coordinate Accuracy Limit M"
+          },
+          "comparable_listing_count": {
+            "type": "integer",
+            "title": "Comparable Listing Count"
+          },
+          "count_basis": {
+            "type": "string",
+            "title": "Count Basis"
+          },
+          "minimum_met": {
+            "type": "boolean",
+            "title": "Minimum Met"
+          },
+          "asking_price_statistics_eur": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Asking Price Statistics Eur"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ComparableItem"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          },
+          "data_limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Data Limitations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "synthetic",
+          "search_radius_used_m",
+          "attempted_radii_m",
+          "origin_microzone",
+          "cross_microzone_allowed",
+          "cross_microzone_expansion",
+          "coordinate_accuracy_limit_m",
+          "comparable_listing_count",
+          "count_basis",
+          "minimum_met",
+          "asking_price_statistics_eur",
+          "items",
+          "limit",
+          "offset",
+          "data_limitations"
+        ],
+        "title": "ComparableView"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HistoryView": {
+        "properties": {
+          "listing_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Listing Id"
+          },
+          "synthetic": {
+            "type": "boolean",
+            "const": true,
+            "title": "Synthetic"
+          },
+          "transaction_status": {
+            "type": "string",
+            "const": "unknown",
+            "title": "Transaction Status"
+          },
+          "total_observations": {
+            "type": "integer",
+            "title": "Total Observations"
+          },
+          "total_price_events": {
+            "type": "integer",
+            "title": "Total Price Events"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          },
+          "observations": {
+            "items": {
+              "$ref": "#/components/schemas/ObservationView"
+            },
+            "type": "array",
+            "title": "Observations"
+          },
+          "asking_price_history": {
+            "items": {
+              "$ref": "#/components/schemas/PriceView"
+            },
+            "type": "array",
+            "title": "Asking Price History"
+          }
+        },
+        "type": "object",
+        "required": [
+          "listing_id",
+          "synthetic",
+          "transaction_status",
+          "total_observations",
+          "total_price_events",
+          "limit",
+          "offset",
+          "observations",
+          "asking_price_history"
+        ],
+        "title": "HistoryView"
+      },
+      "MetricsView": {
+        "properties": {
+          "synthetic": {
+            "type": "boolean",
+            "const": true,
+            "title": "Synthetic"
+          },
+          "evaluation": {
+            "type": "string",
+            "title": "Evaluation"
+          },
+          "labeled_listings": {
+            "type": "integer",
+            "title": "Labeled Listings"
+          },
+          "unlabeled_listings": {
+            "type": "integer",
+            "title": "Unlabeled Listings"
+          },
+          "true_positives": {
+            "type": "integer",
+            "title": "True Positives"
+          },
+          "false_positives": {
+            "type": "integer",
+            "title": "False Positives"
+          },
+          "false_negatives": {
+            "type": "integer",
+            "title": "False Negatives"
+          },
+          "precision": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Precision"
+          },
+          "recall": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recall"
+          },
+          "f1": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "F1"
+          }
+        },
+        "type": "object",
+        "required": [
+          "synthetic",
+          "evaluation",
+          "labeled_listings",
+          "unlabeled_listings",
+          "true_positives",
+          "false_positives",
+          "false_negatives",
+          "precision",
+          "recall",
+          "f1"
+        ],
+        "title": "MetricsView"
+      },
+      "ObservationView": {
+        "properties": {
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Observed At"
+          },
+          "availability": {
+            "type": "string",
+            "title": "Availability"
+          },
+          "asking_price_eur": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asking Price Eur"
+          },
+          "inferred": {
+            "type": "boolean",
+            "title": "Inferred"
+          }
+        },
+        "type": "object",
+        "required": [
+          "observed_at",
+          "availability",
+          "asking_price_eur",
+          "inferred"
+        ],
+        "title": "ObservationView"
+      },
+      "Page_PropertySummary_": {
+        "properties": {
+          "synthetic": {
+            "type": "boolean",
+            "const": true,
+            "title": "Synthetic"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PropertySummary"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "synthetic",
+          "total",
+          "limit",
+          "offset",
+          "items"
+        ],
+        "title": "Page[PropertySummary]"
+      },
+      "Page_RunView_": {
+        "properties": {
+          "synthetic": {
+            "type": "boolean",
+            "const": true,
+            "title": "Synthetic"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RunView"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "synthetic",
+          "total",
+          "limit",
+          "offset",
+          "items"
+        ],
+        "title": "Page[RunView]"
+      },
+      "PriceView": {
+        "properties": {
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Observed At"
+          },
+          "previous_price_eur": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Price Eur"
+          },
+          "asking_price_eur": {
+            "type": "string",
+            "title": "Asking Price Eur"
+          },
+          "event_type": {
+            "type": "string",
+            "enum": [
+              "initial",
+              "change"
+            ],
+            "title": "Event Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "observed_at",
+          "previous_price_eur",
+          "asking_price_eur",
+          "event_type"
+        ],
+        "title": "PriceView"
+      },
+      "PropertyDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "synthetic": {
+            "type": "boolean",
+            "const": true,
+            "title": "Synthetic"
+          },
+          "transaction_status": {
+            "type": "string",
+            "const": "unknown",
+            "title": "Transaction Status"
+          },
+          "deduplication_confidence": {
+            "type": "number",
+            "title": "Deduplication Confidence"
+          },
+          "listings": {
+            "items": {
+              "$ref": "#/components/schemas/PublicListing"
+            },
+            "type": "array",
+            "title": "Listings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "synthetic",
+          "transaction_status",
+          "deduplication_confidence",
+          "listings"
+        ],
+        "title": "PropertyDetail"
+      },
+      "PropertySummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "synthetic": {
+            "type": "boolean",
+            "const": true,
+            "title": "Synthetic"
+          },
+          "transaction_status": {
+            "type": "string",
+            "const": "unknown",
+            "title": "Transaction Status"
+          },
+          "deduplication_confidence": {
+            "type": "number",
+            "title": "Deduplication Confidence"
+          },
+          "listing_count": {
+            "type": "integer",
+            "title": "Listing Count"
+          },
+          "representative_listing": {
+            "$ref": "#/components/schemas/PublicListing"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "synthetic",
+          "transaction_status",
+          "deduplication_confidence",
+          "listing_count",
+          "representative_listing"
+        ],
+        "title": "PropertySummary"
+      },
+      "PublicListing": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "property_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Property Id"
+          },
+          "source_id": {
+            "type": "string",
+            "title": "Source Id"
+          },
+          "agency_id": {
+            "type": "string",
+            "title": "Agency Id"
+          },
+          "original_source_id": {
+            "type": "string",
+            "title": "Original Source Id"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "municipality": {
+            "type": "string",
+            "title": "Municipality"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "property_type": {
+            "type": "string",
+            "title": "Property Type"
+          },
+          "asking_price_eur": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asking Price Eur",
+            "description": "Asking price, never a verified sale price"
+          },
+          "area_sqm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Area Sqm"
+          },
+          "rooms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rooms"
+          },
+          "floor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Floor"
+          },
+          "condition": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Condition"
+          },
+          "lift": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lift"
+          },
+          "latitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitude"
+          },
+          "longitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitude"
+          },
+          "coordinate_accuracy_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coordinate Accuracy M"
+          },
+          "coordinate_provenance": {
+            "type": "string",
+            "title": "Coordinate Provenance"
+          },
+          "availability": {
+            "type": "string",
+            "enum": [
+              "active",
+              "temporarily_unavailable",
+              "removed"
+            ],
+            "title": "Availability"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Published At"
+          },
+          "first_seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "First Seen At"
+          },
+          "last_seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Seen At"
+          },
+          "state_updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "State Updated At"
+          },
+          "synthetic": {
+            "type": "boolean",
+            "const": true,
+            "title": "Synthetic"
+          },
+          "missing_attributes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Missing Attributes"
+          },
+          "attributes": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Attributes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "property_id",
+          "source_id",
+          "agency_id",
+          "original_source_id",
+          "url",
+          "municipality",
+          "address",
+          "description",
+          "property_type",
+          "asking_price_eur",
+          "area_sqm",
+          "rooms",
+          "floor",
+          "condition",
+          "lift",
+          "latitude",
+          "longitude",
+          "coordinate_accuracy_m",
+          "coordinate_provenance",
+          "availability",
+          "published_at",
+          "first_seen_at",
+          "last_seen_at",
+          "state_updated_at",
+          "synthetic",
+          "missing_attributes",
+          "attributes"
+        ],
+        "title": "PublicListing"
+      },
+      "QualityView": {
+        "properties": {
+          "synthetic": {
+            "type": "boolean",
+            "const": true,
+            "title": "Synthetic"
+          },
+          "validation_label": {
+            "type": "string",
+            "title": "Validation Label"
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "As Of"
+          },
+          "simulation_days": {
+            "type": "integer",
+            "title": "Simulation Days"
+          },
+          "total_raw_listings": {
+            "type": "integer",
+            "title": "Total Raw Listings"
+          },
+          "distinct_source_advertisements": {
+            "type": "integer",
+            "title": "Distinct Source Advertisements"
+          },
+          "unique_deduplicated_properties": {
+            "type": "integer",
+            "title": "Unique Deduplicated Properties"
+          },
+          "active_advertisements": {
+            "type": "integer",
+            "title": "Active Advertisements"
+          },
+          "removed_advertisements": {
+            "type": "integer",
+            "title": "Removed Advertisements"
+          },
+          "price_change_events": {
+            "type": "integer",
+            "title": "Price Change Events"
+          },
+          "missing_field_percentages": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Missing Field Percentages"
+          },
+          "coordinate_accuracy_distribution": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Coordinate Accuracy Distribution"
+          },
+          "deduplication": {
+            "$ref": "#/components/schemas/MetricsView"
+          },
+          "ingestion": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Ingestion"
+          },
+          "data_freshness": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data Freshness"
+          },
+          "costs": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Costs"
+          },
+          "alerts": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Alerts"
+          },
+          "data_limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Data Limitations"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "synthetic",
+          "validation_label",
+          "as_of",
+          "simulation_days",
+          "total_raw_listings",
+          "distinct_source_advertisements",
+          "unique_deduplicated_properties",
+          "active_advertisements",
+          "removed_advertisements",
+          "price_change_events",
+          "missing_field_percentages",
+          "coordinate_accuracy_distribution",
+          "deduplication",
+          "ingestion",
+          "data_freshness",
+          "costs",
+          "alerts",
+          "data_limitations"
+        ],
+        "title": "QualityView"
+      },
+      "RunView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "source_id": {
+            "type": "string",
+            "title": "Source Id"
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Observed At"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "finished_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Finished At"
+          },
+          "complete": {
+            "type": "boolean",
+            "title": "Complete"
+          },
+          "scope": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Scope"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "stats": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Stats"
+          },
+          "synthetic": {
+            "type": "boolean",
+            "const": true,
+            "title": "Synthetic"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "source_id",
+          "observed_at",
+          "started_at",
+          "finished_at",
+          "complete",
+          "scope",
+          "status",
+          "stats",
+          "synthetic"
+        ],
+        "title": "RunView"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

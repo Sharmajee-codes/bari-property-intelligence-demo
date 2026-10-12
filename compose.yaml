@@ -1,0 +1,71 @@
+name: bari-property-intelligence-demo
+services:
+  db:
+    image: postgis/postgis:16-3.5
+    # This image is amd64; Docker Desktop on Apple Silicon uses emulation.
+    platform: linux/amd64
+    environment:
+      POSTGRES_DB: bari_demo
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo_local_only
+    ports:
+      - "127.0.0.1:${DB_PORT:-55439}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demo -d bari_demo"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  init:
+    build: .
+    environment: &app-env
+      DATABASE_URL: postgresql+psycopg://demo:demo_local_only@db:5432/bari_demo
+      DEMO_SEED: ${DEMO_SEED:-20260101}
+      MAX_USABLE_ACCURACY_M: ${MAX_USABLE_ACCURACY_M:-200}
+      MIN_DEDUP_PRECISION: ${MIN_DEDUP_PRECISION:-0.98}
+      MIN_DEDUP_RECALL: ${MIN_DEDUP_RECALL:-0.75}
+      MAX_VOLUME_CHANGE: ${MAX_VOLUME_CHANGE:-0.30}
+      STALE_DAYS: ${STALE_DAYS:-3}
+      SIMULATED_PROVIDER_PER_RECORD_EUR: ${SIMULATED_PROVIDER_PER_RECORD_EUR:-0.0002}
+      SIMULATED_PROCESSING_PER_RUN_EUR: ${SIMULATED_PROCESSING_PER_RUN_EUR:-0.015}
+      SIMULATED_INFRASTRUCTURE_PER_DAY_EUR: ${SIMULATED_INFRASTRUCTURE_PER_DAY_EUR:-0.75}
+      WORKER_INTERVAL_SECONDS: ${WORKER_INTERVAL_SECONDS:-3600}
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["python", "-m", "app.cli", "bootstrap"]
+    volumes:
+      - demo_data:/srv/data
+      - demo_reports:/srv/reports
+  api:
+    build: .
+    environment: *app-env
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:${API_PORT:-8089}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - demo_data:/srv/data
+      - demo_reports:/srv/reports
+  worker:
+    profiles: ["worker"]
+    build: .
+    environment: *app-env
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    command: ["python", "-m", "app.worker"]
+    volumes:
+      - demo_data:/srv/data
+      - demo_reports:/srv/reports
+volumes:
+  pgdata:
+  demo_data:
+  demo_reports:
