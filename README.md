@@ -2,6 +2,10 @@
 
 **This repository is an independently developed technical demonstration using synthetic data. It is not affiliated with Immobiliare.it or Gruppo Loseto S.r.l. and does not represent a completed production deployment.**
 
+[![PostGIS tests and lint](https://github.com/Sharmajee-codes/bari-property-intelligence-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/Sharmajee-codes/bari-property-intelligence-demo/actions/workflows/ci.yml)
+
+For a quick technical review, see the [executed validation evidence](docs/VALIDATION.md), [14-day synthetic simulation report](reports/sample-fourteen-day.md), and [five-minute walkthrough](docs/DEMO_WALKTHROUGH.md). The simulation is not a continuously operated pilot; its cost assumptions are simulated.
+
 A runnable data-engineering demonstration for evaluating Italian property intelligence workflows: acquisition, normalization, historical asking prices, advertisement availability, conservative entity resolution, and geographic comparable searches. The code, database, configuration, and reports are owned by whoever operates this repository. There are no paid services, live listing integrations, real addresses, or source-site content.
 
 ## Run the complete demonstration
